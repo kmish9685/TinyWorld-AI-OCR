@@ -24,7 +24,7 @@ Write-Host ""
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
     Write-Host "ERROR: This script must be run as Administrator!" -ForegroundColor Red
-    Write-Host "Right-click PowerShell and select 'Run as Administrator'" -ForegroundColor Yellow
+    Write-Host "Right-click PowerShell and select Run as Administrator" -ForegroundColor Yellow
     pause
     exit 1
 }
@@ -51,7 +51,7 @@ foreach ($lang in $languages.Keys) {
     
     # Check if already exists
     if (Test-Path $filepath) {
-        Write-Host "✓ $lang_name ($lang) - Already installed" -ForegroundColor Gray
+        Write-Host "Already installed: $lang_name ($lang)" -ForegroundColor Gray
         $success_count++
         continue
     }
@@ -60,11 +60,11 @@ foreach ($lang in $languages.Keys) {
     
     try {
         Invoke-WebRequest -Uri $download_url -OutFile $filepath -ErrorAction Stop
-        Write-Host " ✓ Success!" -ForegroundColor Green
+        Write-Host " Success!" -ForegroundColor Green
         $success_count++
     }
     catch {
-        Write-Host " ✗ Failed!" -ForegroundColor Red
+        Write-Host " Failed!" -ForegroundColor Red
         Write-Host "  Error: $($_.Exception.Message)" -ForegroundColor Red
         $fail_count++
     }
@@ -74,9 +74,9 @@ Write-Host ""
 Write-Host "==================================" -ForegroundColor Cyan
 Write-Host "Installation Complete!" -ForegroundColor Cyan
 Write-Host "==================================" -ForegroundColor Cyan
-Write-Host "✓ Successful: $success_count languages" -ForegroundColor Green
+Write-Host "Successful: $success_count languages" -ForegroundColor Green
 if ($fail_count -gt 0) {
-    Write-Host "✗ Failed: $fail_count languages" -ForegroundColor Red
+    Write-Host "Failed: $fail_count languages" -ForegroundColor Red
 }
 Write-Host ""
 Write-Host "You can now use these languages in TinyWorld AI!" -ForegroundColor Cyan
