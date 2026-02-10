@@ -415,10 +415,16 @@ class OCRApp:
             
             # (Tesseract handles all recognition - no character loop needed)
                 
-            # Step 4: Rule Correction
+            # Step 4: Rule Correction with OCR error fixes
             self.highlight_step(3)
             self.update_status("Step 4: Rule-based Correction...")
-            final_text = postprocess.clean_text(raw_text, safe_mode=safe_mode)
+            
+            # First fix common OCR errors (character substitutions, word corrections)
+            corrected_text = postprocess.fix_ocr_errors(raw_text)
+            
+            # Then apply additional cleaning
+            safe_mode = self.safe_mode_var.get()
+            final_text = postprocess.clean_text(corrected_text, safe_mode=safe_mode)
             
             self.finish_processing(final_text, debug_text, success=True, time_taken=time.time()-start_time)
             
