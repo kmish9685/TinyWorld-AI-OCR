@@ -81,48 +81,48 @@ class OCRApp:
         control_panel = GlassPanel(main_frame, glass_bg=self.glass_bg, border_color=self.glass_border, width=280)
         control_panel.pack(side="left", fill="y", padx=(0, 25), ipadx=15)
         
-        # Panel Header
-        tk.Label(control_panel, text="Controls", font=("Segoe UI", 18, "bold"), 
-                bg=self.glass_bg, fg=self.text_primary).pack(pady=(20, 15), padx=25)
+        # Panel Header - Smaller, cleaner
+        tk.Label(control_panel, text="Controls", font=("Segoe UI", 14, "bold"), 
+                bg=self.glass_bg, fg=self.text_primary).pack(pady=(16, 12), padx=25)
         
-        # PREMIUM UPLOAD BUTTON with hover effect
+        # PREMIUM UPLOAD BUTTON - Refined
         self.btn_upload = PremiumButton(control_panel, text="📁 Upload Image", 
                                         base_bg=self.card_bg, hover_bg=self.glass_border, active_bg=self.border_subtle,
                                         fg=self.text_primary,
-                                        font=("Segoe UI", 11, "bold"), width=20, 
+                                        font=("Segoe UI", 9, "bold"), width=20, 
                                         relief="flat", bd=0, cursor="hand2",
-                                        padx=20, pady=14,
+                                        padx=16, pady=10,
                                         command=self.upload_image)
-        self.btn_upload.pack(pady=(0, 12), padx=25)
+        self.btn_upload.pack(pady=(0, 8), padx=25)
         
-        # PREMIUM EXTRACT BUTTON with gradient-like hover
+        # PREMIUM EXTRACT BUTTON - Refined
         self.btn_extract = PremiumButton(control_panel, text="✨ Extract Text", 
                                          base_bg=self.primary, hover_bg=self.primary_hover, active_bg="#3730A3",
                                          fg="white", 
-                                         font=("Segoe UI", 12, "bold"), width=20,
+                                         font=("Segoe UI", 10, "bold"), width=20,
                                          relief="flat", bd=0, cursor="hand2",
-                                         padx=20, pady=16,
+                                         padx=16, pady=12,
                                          command=self.start_extraction)
-        self.btn_extract.pack(pady=(0, 12), padx=25)
+        self.btn_extract.pack(pady=(0, 8), padx=25)
         
         # Subtle Divider with helper function
         create_divider(control_panel, color=self.border_subtle, height=1, pady=18)
         
-        # PREMIUM SUCCESS BUTTON
+        # PREMIUM SUCCESS BUTTON - Refined
         self.btn_demo = PremiumButton(control_panel, text="🎬 Run Demo", 
                                       base_bg=self.success, hover_bg="#059669", active_bg="#047857",
                                       fg="white", 
-                                      font=("Segoe UI", 11, "bold"), width=20,
+                                      font=("Segoe UI", 9, "bold"), width=20,
                                       relief="flat", bd=0, cursor="hand2",
-                                      padx=20, pady=14,
+                                      padx=16, pady=10,
                                       command=self.run_demo)
-        self.btn_demo.pack(pady=(0, 12), padx=25)
+        self.btn_demo.pack(pady=(0, 8), padx=25)
         
         create_divider(control_panel, color=self.border_subtle, height=1, pady=18)
         
-        # LANGUAGE SELECTOR
+        # LANGUAGE SELECTOR - Refined
         tk.Label(control_panel, text="🌍 Language", 
-                font=("Segoe UI", 11, "bold"), bg=self.glass_bg, fg=self.text_primary).pack(pady=(10, 6), padx=25)
+                font=("Segoe UI", 9, "bold"), bg=self.glass_bg, fg=self.text_primary).pack(pady=(8, 4), padx=25)
         
         
         from tkinter import ttk
@@ -287,14 +287,14 @@ class OCRApp:
                                                    insertbackground=self.text_secondary)
         self.txt_debug.pack(fill="both", expand=True)
         
-        # Premium Save Button with hover effect
+        # Premium Save Button - Refined
         save_btn = PremiumButton(output_panel, text="💾 Save to File", 
                                 base_bg=self.primary, hover_bg=self.primary_hover, active_bg="#3730A3",
-                                fg="white", font=("Segoe UI", 11, "bold"),
+                                fg="white", font=("Segoe UI", 9, "bold"),
                                 relief="flat", bd=0, cursor="hand2",
-                                padx=18, pady=14,
+                                padx=16, pady=10,
                                 command=self.save_text)
-        save_btn.pack(pady=14, padx=14, fill="x")
+        save_btn.pack(pady=12, padx=12, fill="x")
 
     def upload_image(self):
         file_path = filedialog.askopenfilename(filetypes=[("Images", "*.png;*.jpg;*.jpeg;*.bmp;*.tiff")])
