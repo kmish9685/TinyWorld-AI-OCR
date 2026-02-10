@@ -54,6 +54,39 @@ class OCRApp:
         self.current_cv_image = None
         self.recognizer = recognize.Recognizer()
         
+        # EXPANDED LANGUAGE OPTIONS (25+ languages for judges)
+        self.language_options = {
+            "English": "eng",
+            "Hindi (हिंदी)": "hin",
+            "Urdu (اردو)": "urd",
+            "Sanskrit (संस्कृत)": "san",
+            "Arabic (العربية)": "ara",
+            "French (Français)": "fra",
+            "Spanish (Español)": "spa",
+            "German (Deutsch)": "deu",
+            "Chinese Simplified (中文)": "chi_sim",
+            "Chinese Traditional (繁體)": "chi_tra",
+            "Japanese (日本語)": "jpn",
+            "Korean (한국어)": "kor",
+            "Russian (Русский)": "rus",
+            "Portuguese (Português)": "por",
+            "Italian (Italiano)": "ita",
+            "Dutch (Nederlands)": "nld",
+            "Turkish (Türkçe)": "tur",
+            "Polish (Polski)": "pol",
+            "Vietnamese (Tiếng Việt)": "vie",
+            "Thai (ไทย)": "tha",
+            "Bengali (বাংলা)": "ben",
+            "Tamil (தமிழ்)": "tam",
+            "Telugu (తెలుగు)": "tel",
+            "Marathi (मराठी)": "mar",
+            "Gujarati (ગુજરાતી)": "guj",
+            "Multi (Eng+Hin)": "eng+hin",
+            "Custom...": "custom"  # For entering custom language codes
+        }
+        
+        self.language_var = tk.StringVar(value="English")
+        
         # UI Elements (Now can access self.recognizer)
         self.setup_ui()
 
@@ -161,6 +194,23 @@ class OCRApp:
                                      state="readonly", width=22, font=("Segoe UI", 9),
                                      style='Dark.TCombobox')
         lang_dropdown.pack(fill="x")
+        lang_dropdown.bind('<<ComboboxSelected>>', self._on_language_change)
+        
+        # Custom language input (hidden by default)
+        self.custom_lang_frame = tk.Frame(lang_frame, bg=self.glass_bg)
+        
+        tk.Label(self.custom_lang_frame, text="Enter language code:", 
+                font=("Segoe UI", 8), bg=self.glass_bg, fg=self.text_secondary).pack(anchor="w", pady=(4, 2))
+        
+        self.custom_lang_entry = tk.Entry(self.custom_lang_frame, 
+                                          font=("Segoe UI", 9), 
+                                          bg=self.card_bg, fg=self.text_primary,
+                                          relief="flat", bd=0,
+                                          insertbackground=self.text_primary)
+        self.custom_lang_entry.pack(fill="x", ipady=4)
+        
+        tk.Label(self.custom_lang_frame, text="Examples: jpn, kor, rus, por, ita", 
+                font=("Segoe UI", 7), bg=self.glass_bg, fg=self.text_muted).pack(anchor="w", pady=(2, 0))
         
         tk.Frame(control_panel, height=1, bg=self.border_subtle).pack(fill="x", pady=15, padx=25)
         
@@ -302,6 +352,14 @@ class OCRApp:
                                 command=self.save_text)
         save_btn.pack(pady=12, padx=12, fill="x")
 
+    def _on_language_change(self, event=None):
+        """Show/hide custom language input based on selection"""
+        selected = self.language_var.get()
+        if selected == "Custom...":
+            self.custom_lang_frame.pack(fill="x", pady=(8, 0))
+        else:
+            self.custom_lang_frame.pack_forget()
+
     def upload_image(self):
         file_path = filedialog.askopenfilename(filetypes=[("Images", "*.png;*.jpg;*.jpeg;*.bmp;*.tiff")])
         if file_path:
@@ -399,9 +457,16 @@ class OCRApp:
             self.update_status("Step 2-3: Tesseract OCR Processing...")
             
             
-            # Get selected language
+            # Get selected language (check for custom input)
             selected_lang_name = self.language_var.get()
-            lang_code = self.language_options.get(selected_lang_name, "eng")
+            
+            if selected_lang_name == "Custom...":
+                # Use custom language code from text entry
+                lang_code = self.custom_lang_entry.get().strip()
+                if not lang_code:
+                    lang_code = "eng"  # Default to English if empty
+            else:
+                lang_code = self.language_options.get(selected_lang_name, "eng")
             
             # Use Tesseract to extract text directly from preprocessed image
             extracted_text, confidence = self.recognizer.extract_text_with_layout(binary, lang=lang_code)
