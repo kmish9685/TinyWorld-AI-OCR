@@ -116,6 +116,32 @@ class OCRApp:
         
         tk.Frame(control_panel, height=1, bg=self.border_light).pack(fill="x", pady=14, padx=18)
         
+        # LANGUAGE SELECTOR
+        tk.Label(control_panel, text="🌍 Language", 
+                font=("Segoe UI", 11, "bold"), bg=self.card_glass, fg=self.text_color).pack(pady=(8, 4), padx=18)
+        
+        from tkinter import ttk
+        self.language_var = tk.StringVar(value="English")
+        self.language_options = {
+            "English": "eng",
+            "Hindi (हिंदी)": "hin",
+            "Urdu (اردو)": "urd",
+            "Sanskrit (संस्कृत)": "san",
+            "Arabic (العربية)": "ara",
+            "French": "fra",
+            "Spanish": "spa",
+            "German": "deu",
+            "Chinese (中文)": "chi_sim",
+            "Multi (Eng+Hin)": "eng+hin"
+        }
+        
+        lang_dropdown = ttk.Combobox(control_panel, textvariable=self.language_var, 
+                                     values=list(self.language_options.keys()),
+                                     state="readonly", width=18, font=("Segoe UI", 9))
+        lang_dropdown.pack(pady=(0, 8), padx=18)
+        
+        tk.Frame(control_panel, height=1, bg=self.border_light).pack(fill="x", pady=14, padx=18)
+        
         # iOS-STYLE TOGGLE SWITCHES (Checkboxes)
         self.safe_mode_var = tk.BooleanVar(value=True)
         self.chk_safe = tk.Checkbutton(control_panel, text="✓ Safe Mode", 
@@ -329,8 +355,13 @@ class OCRApp:
             self.highlight_step(1)
             self.update_status("Step 2-3: Tesseract OCR Processing...")
             
+            
+            # Get selected language
+            selected_lang_name = self.language_var.get()
+            lang_code = self.language_options.get(selected_lang_name, "eng")
+            
             # Use Tesseract to extract text directly from preprocessed image
-            extracted_text, confidence = self.recognizer.extract_text_with_layout(binary)
+            extracted_text, confidence = self.recognizer.extract_text_with_layout(binary, lang=lang_code)
             
             if not extracted_text:
                 self.finish_processing("No text detected.", "", success=False, time_taken=time.time()-start_time)

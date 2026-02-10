@@ -60,12 +60,13 @@ class Recognizer:
             print(f"Tesseract extraction error: {e}")
             return "", 0.0
     
-    def extract_text_with_layout(self, image_array):
+    def extract_text_with_layout(self, image_array, lang='eng'):
         """
         Extract text preserving layout (line breaks).
         
         Args:
             image_array: numpy array of preprocessed image
+            lang: language code (e.g., 'eng', 'hin', 'eng+hin' for multiple)
             
         Returns:
             extracted_text: string with preserved layout
@@ -75,11 +76,11 @@ class Recognizer:
             # Convert to PIL Image
             pil_image = Image.fromarray(image_array)
             
-            # Use Tesseract to extract text with layout
-            text = pytesseract.image_to_string(pil_image)
+            # Use Tesseract to extract text with layout and specified language
+            text = pytesseract.image_to_string(pil_image, lang=lang)
             
             # Get confidence data
-            data = pytesseract.image_to_data(pil_image, output_type=pytesseract.Output.DICT)
+            data = pytesseract.image_to_data(pil_image, lang=lang, output_type=pytesseract.Output.DICT)
             confidences = [c / 100.0 for c in data['conf'] if c > 0]
             avg_confidence = sum(confidences) / len(confidences) if confidences else 0.0
             
