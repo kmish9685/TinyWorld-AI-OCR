@@ -10,26 +10,44 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from src import preprocess, segment, recognize, postprocess
+from src.premium_style import PremiumButton, GlassPanel, create_divider
 
 class OCRApp:
     def __init__(self, root):
         self.root = root
+        self.root.title("TinyWorld AI - OCR Prototype")
+        self.root.geometry("1400x800")
         
-        # APPLE-INSPIRED PREMIUM COLOR SCHEME
-        self.bg_gradient_start = "#F5F7FA"  # Light gradient start
-        self.bg_gradient_end = "#E8EAF6"    # Light gradient end
-        self.bg_color = "#F2F4F8"           # Soft background
-        self.card_bg = "#FFFFFF"            # Pure white cards
-        self.card_glass = "#F8F9FA"         # Frosted glass effect
-        self.primary = "#007AFF"            # iOS Blue
-        self.accent_color = "#5E5CE6"       # iOS Purple
-        self.success = "#34C759"            # iOS Green
-        self.text_color = "#1D1D1F"         # Apple text
-        self.text_secondary = "#86868B"     # Apple secondary text
-        self.border_light = "#E5E7EB"       # Subtle border
-        self.shadow = "#00000010"           # Soft shadow
+        # HEADLESSUI-INSPIRED DARK THEME
+        self.bg_dark = "#0F0F1E"           # Deep dark background
+        self.bg_gradient_1 = "#1A1A2E"     # Dark purple-blue
+        self.bg_gradient_2 = "#16213E"     # Dark blue
+        self.glass_bg = "#1E1E3F"          # Glassmorphism panel
+        self.glass_border = "#2D2D5F"      # Glass border
+        self.card_bg = "#1C1C35"           # Card background
+        self.primary = "#6366F1"           # Indigo (primary action)
+        self.primary_hover = "#4F46E5"     # Darker indigo
+        self.accent = "#8B5CF6"            # Purple accent
+        self.success = "#10B981"           # Green success
+        self.text_primary = "#F9FAFB"      # Almost white
+        self.text_secondary = "#9CA3AF"    # Gray text
+        self.text_muted = "#6B7280"        # Muted gray
+        self.border_subtle = "#374151"     # Subtle border
         
-        self.root.configure(bg=self.bg_color)
+        self.root.configure(bg=self.bg_dark)
+        
+        # 0. MODERN DARK HEADER
+        header = tk.Frame(self.root, bg=self.bg_gradient_1, height=80)
+        header.pack(fill="x")
+        
+        # Title with gradient effect (simulated with shadow)
+        title = tk.Label(header, text="TinyWorld AI", 
+                        font=("Segoe UI", 28, "bold"), bg=self.bg_gradient_1, fg=self.text_primary)
+        title.pack(pady=(15, 0))
+        
+        subtitle = tk.Label(header, text="Offline OCR • Multi-Language • Lightweight", 
+                           font=("Segoe UI", 10), bg=self.bg_gradient_1, fg=self.text_secondary)
+        subtitle.pack(pady=(2, 15))
         
         # Initialize State & Recognizer FIRST
         self.current_image_path = None
@@ -41,84 +59,71 @@ class OCRApp:
 
         
     def setup_ui(self):
-        # 0. PREMIUM iOS-STYLE HEADER
-        banner = tk.Frame(self.root, bg="#1D1D1F", height=28)
-        banner.pack(fill="x")
-        tk.Label(banner, text="designed for offline devices  |  accuracy traded for size & speed  |  non-universal", 
-                 font=("Segoe UI", 8), bg="#1D1D1F", fg=self.text_secondary).pack(pady=5)
-
-        # iOS-STYLE GRADIENT HEADER
-        header = tk.Frame(self.root, bg=self.primary, height=75)
-        header.pack(fill="x")
-        title = tk.Label(header, text="TinyWorld AI - OCR Prototype", 
-                        font=("Segoe UI", 24, "bold"), bg=self.primary, fg="white")
-        title.pack(pady=18)
-        
-        # iOS-STYLE PILL PIPELINE STEPS
-        self.pipeline_frame = tk.Frame(self.root, bg="#FAFAFA", height=40)
-        self.pipeline_frame.pack(fill="x", pady=0)
+        # MINIMAL PIPELINE INDICATOR
+        pipeline_frame = tk.Frame(self.root, bg=self.bg_dark, height=50)
+        pipeline_frame.pack(fill="x", pady=(0, 10))
         
         self.pipeline_steps = {}
-        steps = ["1. Cleaning", "2. Detection", "3. Recognition", "4. Rules"]
+        steps = ["Preprocessing", "OCR Processing", "Post-Processing", "Complete"]
         for i, step in enumerate(steps):
-             # Pill-shaped step indicators
-             lbl = tk.Label(self.pipeline_frame, text=step, font=("Segoe UI", 9, "bold"), 
-                           bg="#F0F0F0", fg=self.text_secondary,
-                           padx=16, pady=6)
-             lbl.pack(side="left", padx=12, pady=8)
-             self.pipeline_steps[i] = lbl
+            lbl = tk.Label(pipeline_frame, text=step, font=("Segoe UI", 9), 
+                          bg=self.bg_dark, fg=self.text_muted, padx=12, pady=6)
+            lbl.pack(side="left", padx=8, pady=10)
+            self.pipeline_steps[i] = lbl
         
-        # Main Layout with Premium Spacing
-        main_frame = tk.Frame(self.root, bg=self.bg_color)
-        main_frame.pack(fill="both", expand=True, padx=24, pady=16)
+
         
-        # GLASSMORPHISM CONTROL PANEL (iOS-inspired)
-        control_panel = tk.Frame(main_frame, bg=self.card_glass, bd=0, relief="flat", 
-                                highlightbackground=self.border_light, highlightthickness=1)
-        control_panel.pack(side="left", fill="y", padx=(0, 20))
+        # Main Layout with Dark Theme
+        main_frame = tk.Frame(self.root, bg=self.bg_dark)
+        main_frame.pack(fill="both", expand=True, padx=30, pady=20)
+        
+        # DARK GLASSMORPHISM CONTROL PANEL (Wider for better proportions)
+        control_panel = GlassPanel(main_frame, glass_bg=self.glass_bg, border_color=self.glass_border, width=280)
+        control_panel.pack(side="left", fill="y", padx=(0, 25), ipadx=15)
         
         # Panel Header
-        tk.Label(control_panel, text="Controls", font=("Segoe UI", 15, "bold"), 
-                bg=self.card_glass, fg=self.text_color).pack(pady=18, padx=20)
+        tk.Label(control_panel, text="Controls", font=("Segoe UI", 18, "bold"), 
+                bg=self.glass_bg, fg=self.text_primary).pack(pady=(20, 15), padx=25)
         
-        # iOS-STYLE UPLOAD BUTTON (Secondary)
-        self.btn_upload = tk.Button(control_panel, text="📁 Upload Image", 
-                                    bg="#F0F0F0", fg=self.text_color,
-                                    font=("Segoe UI", 10, "bold"), width=16, 
-                                    relief="flat", bd=0, cursor="hand2",
-                                    activebackground="#E8E8E8",
-                                    padx=16, pady=10,
-                                    command=self.upload_image)
-        self.btn_upload.pack(pady=6, padx=18)
+        # PREMIUM UPLOAD BUTTON with hover effect
+        self.btn_upload = PremiumButton(control_panel, text="📁 Upload Image", 
+                                        base_bg=self.card_bg, hover_bg=self.glass_border, active_bg=self.border_subtle,
+                                        fg=self.text_primary,
+                                        font=("Segoe UI", 11, "bold"), width=20, 
+                                        relief="flat", bd=0, cursor="hand2",
+                                        padx=20, pady=14,
+                                        command=self.upload_image)
+        self.btn_upload.pack(pady=(0, 12), padx=25)
         
-        # iOS-STYLE EXTRACT BUTTON (Primary with gradient effect)
-        self.btn_extract = tk.Button(control_panel, text="✨ Extract Text", 
-                                     bg=self.primary, fg="white", 
-                                     font=("Segoe UI", 11, "bold"), width=16,
-                                     relief="flat", bd=0, cursor="hand2",
-                                     activebackground="#0051D5",
-                                     padx=16, pady=12,
-                                     command=self.start_extraction)
-        self.btn_extract.pack(pady=10, padx=18)
+        # PREMIUM EXTRACT BUTTON with gradient-like hover
+        self.btn_extract = PremiumButton(control_panel, text="✨ Extract Text", 
+                                         base_bg=self.primary, hover_bg=self.primary_hover, active_bg="#3730A3",
+                                         fg="white", 
+                                         font=("Segoe UI", 12, "bold"), width=20,
+                                         relief="flat", bd=0, cursor="hand2",
+                                         padx=20, pady=16,
+                                         command=self.start_extraction)
+        self.btn_extract.pack(pady=(0, 12), padx=25)
         
-        # Subtle Divider
-        tk.Frame(control_panel, height=1, bg=self.border_light).pack(fill="x", pady=14, padx=18)
+        # Subtle Divider with helper function
+        create_divider(control_panel, color=self.border_subtle, height=1, pady=18)
         
-        # iOS-STYLE SUCCESS BUTTON
-        self.btn_demo = tk.Button(control_panel, text="🎬 Run Demo", 
-                                  bg=self.success, fg="white", 
-                                  font=("Segoe UI", 10, "bold"), width=16,
-                                  relief="flat", bd=0, cursor="hand2",
-                                  activebackground="#28A745",
-                                  padx=16, pady=10,
-                                  command=self.run_demo)
-        self.btn_demo.pack(pady=6, padx=18)
+        # PREMIUM SUCCESS BUTTON
+        self.btn_demo = PremiumButton(control_panel, text="🎬 Run Demo", 
+                                      base_bg=self.success, hover_bg="#059669", active_bg="#047857",
+                                      fg="white", 
+                                      font=("Segoe UI", 11, "bold"), width=20,
+                                      relief="flat", bd=0, cursor="hand2",
+                                      padx=20, pady=14,
+                                      command=self.run_demo)
+        self.btn_demo.pack(pady=(0, 12), padx=25)
         
-        tk.Frame(control_panel, height=1, bg=self.border_light).pack(fill="x", pady=14, padx=18)
+        create_divider(control_panel, color=self.border_subtle, height=1, pady=18)
         
         # LANGUAGE SELECTOR
         tk.Label(control_panel, text="🌍 Language", 
-                font=("Segoe UI", 11, "bold"), bg=self.card_glass, fg=self.text_color).pack(pady=(8, 4), padx=18)
+                font=("Segoe UI", 11, "bold"), bg=self.glass_bg, fg=self.text_primary).pack(pady=(10, 6), padx=25)
+        
         
         from tkinter import ttk
         self.language_var = tk.StringVar(value="English")
@@ -135,59 +140,70 @@ class OCRApp:
             "Multi (Eng+Hin)": "eng+hin"
         }
         
+        # Style the dropdown for dark theme
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure('Dark.TCombobox', 
+                       fieldbackground=self.card_bg,
+                       background=self.card_bg,
+                       foreground=self.text_primary,
+                       bordercolor=self.border_subtle,
+                       arrowcolor=self.text_secondary)
+        
         lang_dropdown = ttk.Combobox(control_panel, textvariable=self.language_var, 
                                      values=list(self.language_options.keys()),
-                                     state="readonly", width=18, font=("Segoe UI", 9))
-        lang_dropdown.pack(pady=(0, 8), padx=18)
+                                     state="readonly", width=20, font=("Segoe UI", 9),
+                                     style='Dark.TCombobox')
+        lang_dropdown.pack(pady=(0, 10), padx=25)
         
-        tk.Frame(control_panel, height=1, bg=self.border_light).pack(fill="x", pady=14, padx=18)
+        tk.Frame(control_panel, height=1, bg=self.border_subtle).pack(fill="x", pady=15, padx=25)
         
-        # iOS-STYLE TOGGLE SWITCHES (Checkboxes)
+        # MODERN TOGGLE SWITCHES (Checkboxes)
         self.safe_mode_var = tk.BooleanVar(value=True)
         self.chk_safe = tk.Checkbutton(control_panel, text="✓ Safe Mode", 
-                                       variable=self.safe_mode_var, bg=self.card_glass,
-                                       font=("Segoe UI", 10, "bold"), fg=self.text_color,
-                                       activebackground=self.card_glass,
-                                       selectcolor=self.card_glass)
-        self.chk_safe.pack(pady=6, anchor="w", padx=22)
+                                       variable=self.safe_mode_var, bg=self.glass_bg,
+                                       font=("Segoe UI", 10, "bold"), fg=self.text_primary,
+                                       activebackground=self.glass_bg,
+                                       selectcolor=self.card_bg)
+        self.chk_safe.pack(pady=(10, 4), anchor="w", padx=25)
         tk.Label(control_panel, text="Minimal Correction", 
-                font=("Segoe UI", 9), bg=self.card_glass, fg=self.text_secondary).pack(anchor="w", padx=22)
+                font=("Segoe UI", 9), bg=self.glass_bg, fg=self.text_muted).pack(anchor="w", padx=25)
         
         self.honesty_var = tk.BooleanVar(value=False)
         self.chk_honest = tk.Checkbutton(control_panel, text="✓ Honesty Filter", 
-                                         variable=self.honesty_var, bg=self.card_glass,
-                                         font=("Segoe UI", 10, "bold"), fg=self.text_color,
-                                         activebackground=self.card_glass,
-                                         selectcolor=self.card_glass)
-        self.chk_honest.pack(pady=(12, 6), anchor="w", padx=22)
+                                         variable=self.honesty_var, bg=self.glass_bg,
+                                         font=("Segoe UI", 10, "bold"), fg=self.text_primary,
+                                         activebackground=self.glass_bg,
+                                         selectcolor=self.card_bg)
+        self.chk_honest.pack(pady=(14, 4), anchor="w", padx=25)
         tk.Label(control_panel, text="Mask low confidence", 
-                font=("Segoe UI", 9), bg=self.card_glass, fg=self.text_secondary).pack(anchor="w", padx=22)
+                font=("Segoe UI", 9), bg=self.glass_bg, fg=self.text_muted).pack(anchor="w", padx=25)
         
-        tk.Frame(control_panel, height=1, bg=self.border_light).pack(fill="x", pady=14, padx=18)
+        tk.Frame(control_panel, height=1, bg=self.border_subtle).pack(fill="x", pady=18, padx=25)
         
-        # iOS-STYLE METRICS PANEL
+        # DARK METRICS PANEL
         tk.Label(control_panel, text="System Metrics", 
-                font=("Segoe UI", 12, "bold"), bg=self.card_glass, fg=self.text_color).pack(pady=10)
+                font=("Segoe UI", 12, "bold"), bg=self.glass_bg, fg=self.text_primary).pack(pady=(12, 10), padx=25)
         
         # Metric Cards
         self.lbl_model_size = tk.Label(control_panel, text="Model: Checking...", 
-                                       font=("Segoe UI", 10), bg=self.card_glass, fg=self.text_secondary)
-        self.lbl_model_size.pack(pady=3)
+                                       font=("Segoe UI", 10), bg=self.glass_bg, fg=self.text_secondary)
+        self.lbl_model_size.pack(pady=4)
 
-        # Highlighted Metric
+        # Highlighted Metric with accent color
         self.lbl_params = tk.Label(control_panel, text="Params/Char: ...", 
-                                   font=("Segoe UI", 9, "bold"), bg="#FFF4E6", 
-                                   fg="#C77700", padx=10, pady=4)
-        self.lbl_params.pack(pady=6)
+                                   font=("Segoe UI", 9, "bold"), bg=self.accent, 
+                                   fg="white", padx=12, pady=5)
+        self.lbl_params.pack(pady=8)
         
         self.lbl_time = tk.Label(control_panel, text="Time: 0ms", 
-                                font=("Segoe UI", 10), bg=self.card_glass, fg=self.text_secondary)
-        self.lbl_time.pack(pady=3)
+                                font=("Segoe UI", 10), bg=self.glass_bg, fg=self.text_secondary)
+        self.lbl_time.pack(pady=4)
         
         # Status at bottom
         self.lbl_status = tk.Label(control_panel, text="• Ready", 
-                                  font=("Segoe UI", 10, "italic"), bg=self.card_glass, fg=self.primary)
-        self.lbl_status.pack(side="bottom", pady=18)
+                                  font=("Segoe UI", 10, "italic"), bg=self.glass_bg, fg=self.primary)
+        self.lbl_status.pack(side="bottom", pady=20)
 
         # Update Metrics
         size_mb = self.recognizer.get_model_size_mb()
@@ -200,64 +216,85 @@ class OCRApp:
             params_per_char_kb = (size_bytes / 37) / 1024
             self.lbl_params.config(text=f"Params/Char: ~{params_per_char_kb:.1f} KB")
 
-        # Column 2: Image Views (Middle)
-        image_panel = tk.Frame(main_frame, bg=self.bg_color)
+        # Column 2: Image Views (Middle) - Optimized Layout
+        image_panel = tk.Frame(main_frame, bg=self.bg_dark)
         image_panel.pack(side="left", fill="both", expand=True)
         
-        view_frame = tk.Frame(image_panel, bg=self.bg_color)
+        view_frame = tk.Frame(image_panel, bg=self.bg_dark)
         view_frame.pack(fill="both", expand=True)
         
-        # Original
-        frame_orig = tk.LabelFrame(view_frame, text="Original Input", bg=self.bg_color)
-        frame_orig.pack(side="left", fill="both", expand=True, padx=5)
-        self.lbl_image_orig = tk.Label(frame_orig, text="No Image", bg="#e0e0e0")
-        self.lbl_image_orig.pack(fill="both", expand=True, padx=5, pady=5)
+        # Original - Dark Glass Frame with better proportions
+        frame_orig = tk.LabelFrame(view_frame, text="Original Input", bg=self.glass_bg,
+                                  fg=self.text_primary, font=("Segoe UI", 11, "bold"),
+                                  bd=2, relief="flat", highlightbackground=self.glass_border,
+                                  highlightthickness=2)
+        frame_orig.pack(side="left", fill="both", expand=True, padx=6, pady=5)
+        self.lbl_image_orig = tk.Label(frame_orig, text="No Image", bg=self.card_bg, fg=self.text_muted,
+                                      font=("Segoe UI", 10))
+        self.lbl_image_orig.pack(fill="both", expand=True, padx=8, pady=8)
         
-        # Vision
-        frame_vision = tk.LabelFrame(view_frame, text="AI Vision (Processed)", bg=self.bg_color)
-        frame_vision.pack(side="left", fill="both", expand=True, padx=5)
-        self.lbl_image_vision = tk.Label(frame_vision, text="Waiting...", bg="#333", fg="white")
-        self.lbl_image_vision.pack(fill="both", expand=True, padx=5, pady=5)
+        # Vision - Dark Glass Frame with better proportions
+        frame_vision = tk.LabelFrame(view_frame, text="AI Vision (Processed)", bg=self.glass_bg,
+                                    fg=self.text_primary, font=("Segoe UI", 11, "bold"),
+                                    bd=2, relief="flat", highlightbackground=self.glass_border,
+                                    highlightthickness=2)
+        frame_vision.pack(side="left", fill="both", expand=True, padx=6, pady=5)
+        self.lbl_image_vision = tk.Label(frame_vision, text="Waiting...", bg=self.card_bg, fg=self.text_muted,
+                                        font=("Segoe UI", 10))
+        self.lbl_image_vision.pack(fill="both", expand=True, padx=8, pady=8)
         
-        # Column 3: PREMIUM Output Panel
-        output_panel = tk.Frame(main_frame, bg=self.card_bg, bd=0, relief="flat",
-                               highlightbackground="#E5E7EB", highlightthickness=1, width=320)
-        output_panel.pack(side="right", fill="both", padx=(15, 0))
+        # Column 3: DARK OUTPUT PANEL with optimized width
+        output_panel = GlassPanel(main_frame, glass_bg=self.glass_bg, border_color=self.glass_border, width=340)
+        output_panel.pack(side="right", fill="both", padx=(20, 0))
         
-        # Green Header for Results
-        output_header = tk.Frame(output_panel, bg=self.success, height=45)
+        # Success Header for Results
+        output_header = tk.Frame(output_panel, bg=self.success, height=50)
         output_header.pack(fill="x")
         output_header.pack_propagate(False)
         tk.Label(output_header, text="📄 Extracted Text", 
-                font=("Segoe UI", 13, "bold"), bg=self.success, fg="white").pack(pady=10)
+                font=("Segoe UI", 14, "bold"), bg=self.success, fg="white").pack(pady=12)
+        
         
         from tkinter import ttk
         
-        notebook = ttk.Notebook(output_panel)
-        notebook.pack(fill="both", expand=True, pady=(10,5), padx=10)
+        # Style notebook for dark theme
+        style = ttk.Style()
+        style.configure('Dark.TNotebook', background=self.glass_bg, borderwidth=0)
+        style.configure('Dark.TNotebook.Tab', background=self.card_bg, foreground=self.text_primary,
+                       padding=[12, 8], font=("Segoe UI", 9, "bold"))
+        style.map('Dark.TNotebook.Tab', background=[('selected', self.primary)],
+                 foreground=[('selected', 'white')])
         
-        # Tab 1: Final Output with Better Styling
+        notebook = ttk.Notebook(output_panel, style='Dark.TNotebook')
+        notebook.pack(fill="both", expand=True, pady=(12,8), padx=12)
+        
+        # Tab 1: Final Output with Dark Styling
         self.tab_raw = tk.Frame(notebook, bg=self.card_bg)
         notebook.add(self.tab_raw, text="Final Output")
         self.txt_output = scrolledtext.ScrolledText(self.tab_raw, font=("Segoe UI", 11), 
-                                                    width=30, wrap=tk.WORD,
-                                                    bg=self.card_bg, fg=self.text_color,
-                                                    relief="flat", padx=10, pady=10)
+                                                    width=32, wrap=tk.WORD,
+                                                    bg=self.card_bg, fg=self.text_primary,
+                                                    relief="flat", padx=12, pady=12,
+                                                    insertbackground=self.text_primary)
         self.txt_output.pack(fill="both", expand=True)
         
         # Tab 2: Debug
         self.tab_struct = tk.Frame(notebook, bg=self.card_bg)
         notebook.add(self.tab_struct, text="Raw/Debug")
         self.txt_debug = scrolledtext.ScrolledText(self.tab_struct, font=("Consolas", 9), 
-                                                   width=30, fg="#6B7280", bg=self.card_bg,
-                                                   relief="flat", padx=10, pady=10)
+                                                   width=32, fg=self.text_secondary, bg=self.card_bg,
+                                                   relief="flat", padx=12, pady=12,
+                                                   insertbackground=self.text_secondary)
         self.txt_debug.pack(fill="both", expand=True)
         
-        # Modern Save Button
-        tk.Button(output_panel, text="💾 Save to File", 
-                 bg=self.primary, fg="white", font=("Segoe UI", 10, "bold"),
-                 relief="flat", bd=0, cursor="hand2",
-                 command=self.save_text).pack(pady=10, padx=10, fill="x")
+        # Premium Save Button with hover effect
+        save_btn = PremiumButton(output_panel, text="💾 Save to File", 
+                                base_bg=self.primary, hover_bg=self.primary_hover, active_bg="#3730A3",
+                                fg="white", font=("Segoe UI", 11, "bold"),
+                                relief="flat", bd=0, cursor="hand2",
+                                padx=18, pady=14,
+                                command=self.save_text)
+        save_btn.pack(pady=14, padx=14, fill="x")
 
     def upload_image(self):
         file_path = filedialog.askopenfilename(filetypes=[("Images", "*.png;*.jpg;*.jpeg;*.bmp;*.tiff")])
@@ -328,12 +365,12 @@ class OCRApp:
         self.root.after(0, lambda: self._highlight_step_ui(step_idx))
         
     def _highlight_step_ui(self, step_idx):
-        # iOS-style smooth transitions
+        # Dark theme smooth transitions
         for lbl in self.pipeline_steps.values():
-             lbl.config(fg=self.text_secondary, bg="#F0F0F0", font=("Segoe UI", 9, "bold"))
-        # Highlight active step with iOS blue
+             lbl.config(fg=self.text_muted, bg=self.bg_dark, font=("Segoe UI", 9))
+        # Highlight active step with primary indigo
         if step_idx in self.pipeline_steps:
-             self.pipeline_steps[step_idx].config(fg="white", bg=self.primary, font=("Segoe UI", 9, "bold"))
+             self.pipeline_steps[step_idx].config(fg=self.primary, bg=self.bg_dark, font=("Segoe UI", 9, "bold"))
 
     def process_image(self):
         import time

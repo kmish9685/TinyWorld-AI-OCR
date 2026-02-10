@@ -1,88 +1,99 @@
 """
-Premium Apple-inspired UI styling module.
-Provides glassmorphism effects and smooth animations for Tkinter.
+Premium UI Styling Module
+Provides glassmorphism effects, hover animations, and visual enhancements for Tkinter
 """
+
 import tkinter as tk
 
-class PremiumStyle:
-    """Apple-inspired design system"""
-    
-    # iOS Color Palette
-    COLORS = {
-        'ios_blue': '#007AFF',
-        'ios_green': '#34C759',
-        'ios_purple': '#5E5CE6',
-        'ios_red': '#FF3B30',
-        'background_start': '#F5F7FA',
-        'background_end': '#E8EAF6',
-        'card_bg': '#FFFFFF',
-        'card_glass': '#F8F9FA',  # Simulated frosted glass
-        'text_primary': '#1D1D1F',
-        'text_secondary': '#86868B',
-        'border_light': '#E5E7EB',
-        'shadow': '#00000015',
-    }
-    
-    # Typography (SF Pro inspired)
-    FONTS = {
-        'title': ('Segoe UI', 24, 'bold'),
-        'heading': ('Segoe UI', 16, 'bold'),
-        'subheading': ('Segoe UI', 13, 'bold'),
-        'body': ('Segoe UI', 11),
-        'caption': ('Segoe UI', 9),
-        'mono': ('Consolas', 10),
-    }
-    
-    # Spacing (8px grid)
-    SPACING = {
-        'xs': 4,
-        'sm': 8,
-        'md': 12,
-        'lg': 16,
-        'xl': 24,
-        'xxl': 32,
-    }
-    
-    # Border Radius
-    RADIUS = {
-        'sm': 8,
-        'md': 12,
-        'lg': 16,
-        'pill': 999,
-    }
-    
-    @staticmethod
-    def create_glass_frame(parent, **kwargs):
-        """Create a glassmorphism-style frame"""
-        return tk.Frame(
-            parent,
-            bg=PremiumStyle.COLORS['card_glass'],
-            highlightbackground=PremiumStyle.COLORS['border_light'],
-            highlightthickness=1,
-            **kwargs
-        )
-    
-    @staticmethod
-    def create_premium_button(parent, text, style='primary', **kwargs):
-        """Create a premium iOS-style button"""
-        colors = {
-            'primary': (PremiumStyle.COLORS['ios_blue'], 'white'),
-            'success': (PremiumStyle.COLORS['ios_green'], 'white'),
-            'secondary': (PremiumStyle.COLORS['card_glass'], PremiumStyle.COLORS['text_primary']),
-        }
+class PremiumButton(tk.Button):
+    """
+    Enhanced button with hover effects and premium styling
+    """
+    def __init__(self, parent, **kwargs):
+        # Extract custom parameters
+        self.base_bg = kwargs.pop('base_bg', '#6366F1')
+        self.hover_bg = kwargs.pop('hover_bg', '#4F46E5')
+        self.active_bg = kwargs.pop('active_bg', '#3730A3')
         
-        bg, fg = colors.get(style, colors['primary'])
+        # Initialize button
+        super().__init__(parent, **kwargs)
         
-        return tk.Button(
-            parent,
-            text=text,
-            bg=bg,
-            fg=fg,
-            font=PremiumStyle.FONTS['body'],
+        # Set initial background
+        self.config(bg=self.base_bg)
+        
+        # Bind hover events
+        self.bind('<Enter>', self._on_hover)
+        self.bind('<Leave>', self._on_leave)
+        self.bind('<ButtonPress-1>', self._on_press)
+        self.bind('<ButtonRelease-1>', self._on_release)
+    
+    def _on_hover(self, event):
+        """Smooth hover effect"""
+        self.config(bg=self.hover_bg)
+    
+    def _on_leave(self, event):
+        """Return to base color"""
+        self.config(bg=self.base_bg)
+    
+    def _on_press(self, event):
+        """Click press effect"""
+        self.config(bg=self.active_bg)
+    
+    def _on_release(self, event):
+        """Return to hover color"""
+        self.config(bg=self.hover_bg)
+
+
+class GlassPanel(tk.Frame):
+    """
+    Glassmorphism panel with enhanced borders and shadows
+    """
+    def __init__(self, parent, **kwargs):
+        # Extract custom parameters
+        glass_bg = kwargs.pop('glass_bg', '#1E1E3F')
+        border_color = kwargs.pop('border_color', '#2D2D5F')
+        border_width = kwargs.pop('border_width', 2)
+        
+        # Initialize frame
+        super().__init__(parent, bg=glass_bg, **kwargs)
+        
+        # Add border effect
+        self.config(
+            highlightbackground=border_color,
+            highlightthickness=border_width,
             relief='flat',
-            bd=0,
-            cursor='hand2',
-            padx=PremiumStyle.SPACING['lg'],
-            pady=PremiumStyle.SPACING['sm'],
-            **kwargs
+            bd=0
         )
+
+
+def create_gradient_label(parent, text, font_size=14, bg_start='#6366F1', bg_end='#8B5CF6'):
+    """
+    Create a label with gradient-like effect (simulated with single color)
+    Tkinter doesn't support true gradients, so we use a middle color
+    """
+    # Calculate middle color (simple average)
+    frame = tk.Frame(parent, bg=bg_start, bd=0, relief='flat')
+    label = tk.Label(frame, text=text, font=('Segoe UI', font_size, 'bold'),
+                    bg=bg_start, fg='white', padx=20, pady=12)
+    label.pack()
+    return frame
+
+
+def add_shadow_effect(widget, shadow_color='#00000030'):
+    """
+    Simulate shadow effect using borders
+    """
+    widget.config(
+        highlightbackground=shadow_color,
+        highlightthickness=3,
+        bd=0
+    )
+
+
+def create_divider(parent, color='#374151', height=1, pady=15):
+    """
+    Create a subtle divider line
+    """
+    divider = tk.Frame(parent, height=height, bg=color)
+    divider.pack(fill='x', pady=pady, padx=25)
+    return divider
