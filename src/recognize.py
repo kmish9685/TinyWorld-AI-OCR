@@ -76,11 +76,16 @@ class Recognizer:
             # Convert to PIL Image
             pil_image = Image.fromarray(image_array)
             
+            # OPTIMIZED TESSERACT CONFIG for better accuracy
+            # --psm 6: Assume a single uniform block of text
+            # --oem 3: Use both legacy and LSTM OCR engines (best accuracy)
+            custom_config = r'--oem 3 --psm 6'
+            
             # Use Tesseract to extract text with layout and specified language
-            text = pytesseract.image_to_string(pil_image, lang=lang)
+            text = pytesseract.image_to_string(pil_image, lang=lang, config=custom_config)
             
             # Get confidence data
-            data = pytesseract.image_to_data(pil_image, lang=lang, output_type=pytesseract.Output.DICT)
+            data = pytesseract.image_to_data(pil_image, lang=lang, config=custom_config, output_type=pytesseract.Output.DICT)
             confidences = [c / 100.0 for c in data['conf'] if c > 0]
             avg_confidence = sum(confidences) / len(confidences) if confidences else 0.0
             

@@ -120,9 +120,15 @@ class OCRApp:
         
         create_divider(control_panel, color=self.border_subtle, height=1, pady=18)
         
-        # LANGUAGE SELECTOR - Refined
-        tk.Label(control_panel, text="🌍 Language", 
-                font=("Segoe UI", 9, "bold"), bg=self.glass_bg, fg=self.text_primary).pack(pady=(8, 4), padx=25)
+        # LANGUAGE SELECTOR - More Visible
+        lang_frame = tk.Frame(control_panel, bg=self.glass_bg)
+        lang_frame.pack(pady=(8, 4), padx=25, fill="x")
+        
+        tk.Label(lang_frame, text="🌍 Language", 
+                font=("Segoe UI", 10, "bold"), bg=self.glass_bg, fg=self.text_primary).pack(anchor="w")
+        
+        tk.Label(lang_frame, text="Select OCR language", 
+                font=("Segoe UI", 8), bg=self.glass_bg, fg=self.text_secondary).pack(anchor="w", pady=(0, 4))
         
         
         from tkinter import ttk
@@ -150,11 +156,11 @@ class OCRApp:
                        bordercolor=self.border_subtle,
                        arrowcolor=self.text_secondary)
         
-        lang_dropdown = ttk.Combobox(control_panel, textvariable=self.language_var, 
+        lang_dropdown = ttk.Combobox(lang_frame, textvariable=self.language_var, 
                                      values=list(self.language_options.keys()),
-                                     state="readonly", width=20, font=("Segoe UI", 9),
+                                     state="readonly", width=22, font=("Segoe UI", 9),
                                      style='Dark.TCombobox')
-        lang_dropdown.pack(pady=(0, 10), padx=25)
+        lang_dropdown.pack(fill="x")
         
         tk.Frame(control_panel, height=1, bg=self.border_subtle).pack(fill="x", pady=15, padx=25)
         

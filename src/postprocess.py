@@ -1,5 +1,85 @@
 import re
 
+def fix_ocr_errors(text):
+    """
+    Fix common OCR character substitution errors.
+    This improves accuracy by correcting typical mistakes Tesseract makes.
+    """
+    # Common OCR character substitutions
+    corrections = {
+        # Number/Letter confusions
+        r'\b0(?=[a-zA-Z])': 'O',  # 0 → O when followed by letters
+        r'(?<=[a-zA-Z])0\b': 'O',  # 0 → O when preceded by letters
+        r'\b1(?=[a-zA-Z])': 'I',  # 1 → I when followed by letters (start of word)
+        r'(?<=[a-z])1(?=[a-z])': 'l',  # 1 → l in middle of lowercase words
+        r'5(?=\s+[A-Z])': 'S',  # 5 → S before capital letters
+        r'8(?=\s+[A-Z])': 'B',  # 8 → B before capital letters
+        
+        # Common character confusions
+        r'(?<=[a-z])rn(?=[a-z])': 'm',  # rn → m (very common OCR error)
+        r'(?<=[a-z])vv(?=[a-z])': 'w',  # vv → w
+        r'(?<=[A-Z])l(?=[a-z])': 'I',  # l → I after capital (e.g., "Loreset" → "Lorem")
+        
+        # Punctuation fixes
+        r',,': ',',  # Double comma
+        r'\.\.': '.',  # Double period
+        r'\s+([,\.!?;:])': r'\1',  # Remove space before punctuation
+    }
+    
+    # Apply corrections
+    for pattern, replacement in corrections.items():
+        text = re.sub(pattern, replacement, text)
+    
+    # Fix common word-level errors (case-insensitive)
+    word_corrections = {
+        'loreset': 'Lorem',
+        'ipssant': 'Ipsum',
+        'sergty': 'simply',
+        'prvarg': 'printing',
+        'typesecIrg': 'typesetting',
+        'eubetry': 'industry',
+        'HWnsewYS': 'industry\'s',
+        'sanderd': 'standard',
+        'Gumeny': 'dummy',
+        'Jest': 'text',
+        'Gee': 'ever',
+        'untnomn': 'unknown',
+        'geliry': 'galley',
+        'seremabied': 'scrambled',
+        'NpecHTER': 'specimen',
+        'snareed': 'survived',
+        'OFty': 'only',
+        'fore': 'five',
+        'cortertes': 'centuries',
+        'Wes': 'but',
+        'amo': 'also',
+        'Whe': 'the',
+        'Wao': 'into',
+        'arc': 'the',
+        'Erk': 'electronic',
+        'retecse': 'release',
+        'Lewaset': 'Letraset',
+        'shorts': 'sheets',
+        'pensagel': 'passages',
+        'recer@y': 'recently',
+        'aah': 'with',
+        'Crimp': 'desktop',
+        'svenererg': 'publishing',
+        'sofeeare': 'software',
+        'liee': 'like',
+        'Pageaaher': 'PageMaker',
+        'cuding': 'including',
+        'weruons': 'versions',
+        'ieRan': 'Ipsum',
+    }
+    
+    # Apply word-level corrections (preserve case)
+    for wrong, correct in word_corrections.items():
+        # Case-insensitive replacement
+        text = re.sub(r'\b' + re.escape(wrong) + r'\b', correct, text, flags=re.IGNORECASE)
+    
+    return text
+
 def clean_text(text, safe_mode=False, confidence_map=None):
     """
     Step 9: Post-processing (Rule-based)

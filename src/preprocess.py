@@ -8,8 +8,22 @@ def to_grayscale(image):
     return image
 
 def denoise(image):
-    """Applies Gaussian Blur to remove noise."""
-    return cv2.GaussianBlur(image, (5, 5), 0)
+    """Applies Non-local Means Denoising for better noise removal."""
+    # Use fastNlMeansDenoising for grayscale images - better than Gaussian
+    return cv2.fastNlMeansDenoising(image, None, h=10, templateWindowSize=7, searchWindowSize=21)
+
+def sharpen_image(image):
+    """Sharpens the image to enhance text edges for better OCR."""
+    # Create sharpening kernel
+    kernel = np.array([[-1,-1,-1],
+                       [-1, 9,-1],
+                       [-1,-1,-1]])
+    return cv2.filter2D(image, -1, kernel)
+
+def enhance_contrast(image):
+    """Enhances contrast using CLAHE (Contrast Limited Adaptive Histogram Equalization)."""
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+    return clahe.apply(image)
 
 def binarize(image):
     """
@@ -66,19 +80,20 @@ def preprocess_image(image_path=None, image_array=None):
         scale = 800 / w
         new_h = int(h * scale)
         img = cv2.resize(img, (800, new_h))
-        
+    # Step 2: Grayscale Conversion
     gray = to_grayscale(img)
     
-    # Apply Gaussian blur to remove camera noise
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    # Step 3: Enhance contrast for better text visibility
+    gray = enhance_contrast(gray)
     
-    # Step 2: Contrast Enhancement
-    # Apply adaptive histogram equalization (CLAHE)
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-    enhanced = clahe.apply(blurred)
+    # Step 4: Denoise (remove noise while preserving edges)
+    gray = denoise(gray)
     
-    # Step 3: Binarization
-    binary = binarize(enhanced)
+    # Step 5: Sharpen image to enhance text edges
+    gray = sharpen_image(gray)
+    
+    # Step 6: Binarization (convert to black/white)
+    binary = binarize(gray)
     
     # Step 3: Deskewing (New)
     angle = get_skew_angle(binary)
