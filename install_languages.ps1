@@ -2,13 +2,13 @@
 # Run this script as Administrator to download Tesseract language packs
 
 $languages = @{
-    "hin" = "Hindi"
-    "urd" = "Urdu"
-    "san" = "Sanskrit"
-    "ara" = "Arabic"
-    "fra" = "French"
-    "spa" = "Spanish"
-    "deu" = "German"
+    "hin"     = "Hindi"
+    "urd"     = "Urdu"
+    "san"     = "Sanskrit"
+    "ara"     = "Arabic"
+    "fra"     = "French"
+    "spa"     = "Spanish"
+    "deu"     = "German"
     "chi_sim" = "Chinese Simplified"
 }
 
